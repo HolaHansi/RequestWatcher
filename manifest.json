@@ -10,14 +10,13 @@
    "version": "1.0",
    "manifest_version": 2,
    "background": {
-       "scripts": ["logip.js", "jquery.min.js"]
+       "scripts": ["libraries/jquery.min.js", "logip.js"]
    },
 
    "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
 
    "permissions": [
        "webRequest",
-       "webRequestBlocking",
        "<all_urls>",
        "tabs",
        "proxy"

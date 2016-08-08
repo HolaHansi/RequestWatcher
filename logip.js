@@ -1,5 +1,5 @@
-// =========== REQUEST INFRASTRUCTURE =========
-// request prototype TODO: extend
+// ======== Request datastructures =====
+// request prototype
 function Request(ip) {
   this.ip = ip;
   this.count = 1;
@@ -8,27 +8,7 @@ function Request(ip) {
 var requestHistory = [];
 
 
-var updateHistory = function(details) {
-  if (details.ip) {
-    var index = requestHistory.findIndex(function(value) {
-      return value.ip === details.ip;
-    });
-    // ip already in array, increment its count.
-    if (index >= 0) {
-      requestHistory[index].count += 1;
-    }
-    // ip not in history, add it as obj
-    else {
-      var req = new Request(details.ip);
-      getGeo(req);
-      requestHistory.push(req);
-    }
-  }
-  console.log(requestHistory);
-}
-var filterObj = {urls: ["<all_urls>"]};
-
-
+// ====== Utility functions ===========
 // delete history
 var deleteHistory = function() {
   requestHistory = [];
@@ -56,15 +36,14 @@ var updateGeo = function() {
   for (var i=0; i<requestHistory.length; i++) {
     var req = requestHistory[i];
     // only lookup location, if this has not been done before.
-    if (!req.hasOwnProperty("city")) {
+    if (!req.hasOwnProperty("longitude")) {
       getGeo(req);
     }
   }
 }
 
-// sort history according to counts
-
-function sortHistory() {
+// sort history desc. according to count
+var sortHistory = function() {
   requestHistory.sort(function(a, b) {
     if (a.count > b.count) {
       return -1
@@ -78,7 +57,34 @@ function sortHistory() {
   });
 }
 
-// ========= Listeners and Status ========
+
+// =========  Listener Arguments =========
+var updateHistory = function(details) {
+  // if request has IP and is not a request made to freegeoip - log it!
+  if (details.ip && (details.url.indexOf("freegeoip.net/") == -1)) {
+      console.log(details);
+      var index = requestHistory.findIndex(function(value) {
+        return value.ip === details.ip;
+      });
+      // ip already in array, increment its count.
+      if (index >= 0) {
+        requestHistory[index].count += 1;
+      }
+      // ip not in history, add it as obj
+      else {
+        var req = new Request(details.ip);
+        // async request to obtain geo info
+        getGeo(req);
+        // push it to history
+        requestHistory.push(req);
+      }
+  }
+  console.log(requestHistory);
+}
+// filter argument: listen to all URLS i.e. all requests.
+var filterObj = {urls: ["<all_urls>"]};
+
+// ========= Messenging, Listeners and Status ========
 
 // the background script is listening by default.
 var listening = true;
@@ -87,14 +93,14 @@ chrome.webRequest.onCompleted.addListener(updateHistory, filterObj);
 chrome.runtime.onConnect.addListener(function(port) {
   port.onMessage.addListener(function(msg) {
     console.log("message received!");
+    console.log(msg.type);
     // popup loaded and needs listening status
     if (msg.type === "status") {
       port.postMessage({type: "status", status: listening});
-
       // sort history
       sortHistory();
       // send history via message to popup.
-      port.postMessage({type: "history", history: requestHistory});      
+      port.postMessage({type: "history", history: requestHistory});
     }
     // history requested for generating stats
     else if (msg.type === "getHistory") {
@@ -103,14 +109,13 @@ chrome.runtime.onConnect.addListener(function(port) {
       // send history via message to popup.
       port.postMessage({type: "history", history: requestHistory});
     }
-
-    // btn pressed
+    // delete btn pressed
     else if (msg.type === "deleteHis") {
+      console.log("deleting history");
       deleteHistory();
       // send back the void history.
       port.postMessage({type: "history", history: requestHistory});
     }
-
     // start listening btn was pressed
     else if (msg.type === "start") {
       chrome.webRequest.onCompleted.addListener(updateHistory, filterObj);
@@ -118,62 +123,8 @@ chrome.runtime.onConnect.addListener(function(port) {
     }
     // stop listening btn was pressed
     else if (msg.type === "stop") {
-      console.log("STOP REQUESTED!");
       chrome.webRequest.onCompleted.removeListener(updateHistory);
       listening = false;
       }
   });
 });
-
-// ip processing
-// processing ips
-// function getIps(obj) {
-//   var listOfIps = [];
-//   var newIp = true
-//
-//   for(var i = 0; i<obj.content.entries.length; i++) {
-//     // check if IP not null
-//     if (obj.content.entries[i].serverIPAddress) {
-//       var ip = obj.content.entries[i].serverIPAddress
-//     }
-//     // if already in list, increment count
-//     for (j = 0; j<listOfIps.length; j++) {
-//       if (listOfIps[j].ipAdd === ip) {
-//         listOfIps[j].count += 1;
-//         newIp = false;
-//       }
-//     }
-//     // if not in list, add it to list with count 1
-//     if (newIp) {
-//       listOfIps.push({ipAdd: ip, count: 1});
-//     }
-//   }
-//   return listOfIps;
-// }
-//
-// function addLocation(listOfIps) {
-//   var finalList = [];
-//   for (var k=0; k<listOfIps.length; k++) {
-//     var ip = listOfIps[k].ipAdd;
-//     var count = listOfIps[k].count;
-//     var url = "http://freegeoip.net/json/" + ip;
-//
-//     // sync ajax requests might not work in all browsers :-(
-//     $.ajaxSetup({async: false});
-//     $.ajax({
-//       url: url,
-//       success: function(data) {
-//         var element = {
-//           ip: ip,
-//           count: count,
-//           latitude: data.latitude,
-//           longitude: data.longitude,
-//           city: data.city,
-//           country: data.country_name
-//         };
-//         finalList.push(element);
-//       }
-//     });
-//   }
-//   return finalList;
-// }
