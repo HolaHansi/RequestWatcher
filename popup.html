@@ -6,13 +6,22 @@
   <link ref="stylesheet" href="style.css" />
 </head>
 
-<body style="width: 700px; height: 700px">
+<body style="width: 700px; height: 600px">
+  <style>
+  #btns {
+    margin-bottom: 5px;
+    margin-left: 3px;
+    margin-top: 3px;
+  }
 
-<button type="button" class="btn btn-default listenBtn">Start Listening</button>
+  </style>
+<div id="btns">
+  <button type="button" class="btn btn-default listenBtn">Start Listening</button>
 
-<button type="button" class="btn btn-default deleteBtn">Delete History</button>
+  <button type="button" class="btn btn-default deleteBtn">Delete History</button>
 
-<button type="button" class="btn btn-default refreshBtn">Refresh</button>
+  <button type="button" class="btn btn-default refreshBtn">Refresh</button>
+</div>
 
 <div id="map" style="width:700px;height:500px; margin: auto;"></div>
 

@@ -8,9 +8,39 @@ port.postMessage({type: "status"});
 // ========= Map =========
 // Compute Radius
 function computeRadius(count) {
-  max = 10000;
-  return max*count;
+  max = 1000;
+  return Math.max(max*count, 100000);
 };
+
+// toArray utility function
+function arrayFromObject(obj) {
+    var arr = [];
+    for (var i in obj) {
+        arr.push(obj[i]);
+    }
+    return arr;
+}
+
+// group requests by locations
+function groupByLocation(list) {
+  var groups = {};
+  for (var i = 0; i < list.length; i++) {
+    if (list[i].hasOwnProperty("longitude") && list[i].hasOwnProperty("latitude")) {
+      var group = (String(list[i].longitude) + "--" + String(list[i].latitude));
+      if (group in groups) {
+        groups[group].push(list[i]);
+        groups[group].count += list[i].count;
+
+      } else {
+        groups[group] = [list[i]];
+        groups[group].count = list[i].count;
+      }
+    }
+  }
+  return arrayFromObject(groups);
+}
+
+
 // initiate map - focus on Europe
 var mymap = L.map('map').setView([51.505, -0.09], 2);
 // use free tiles
@@ -33,7 +63,8 @@ port.onMessage.addListener(function(msg) {
   }
   // receiving history array, process it.
   else if (msg.type === "history") {
-    var content = msg.history;
+    var content = groupByLocation(msg.history);
+    console.log(content);
     // Remove old circles and table
     mymap.eachLayer(function (layer) {
       // don't remove the tiles
@@ -42,31 +73,25 @@ port.onMessage.addListener(function(msg) {
         mymap.removeLayer(layer);
       }
     });
-    $("table").remove();
     // if history is not empty, add requests to map and table.
     if (content.length) {
       // add table
-      $("#tablePlace").append("<table> <thead> <th>ip</th> <th>count</th><th>longitude</th><th>latitude</th><th>city</th><th>country</th></thead><tbody>");
       for (var i=0; i<content.length - 1; i++) {
-          // ======= Add request to map ========
-          L.circle([content[i].latitude, content[i].longitude], computeRadius(content[i].count), {
+          var circle = L.circle([content[i][0].latitude, content[i][0].longitude], computeRadius(content[i].count), {
             color: 'red'
           })
-          .bindPopup(content[i].city + " - ip: " + content[i].ip)
-          .addTo(mymap);
+          var loc = (content[i][0].city ? String(content[i][0].city) : String(content[i][0].country));
+
+          var popText = "<h4>"+ loc + ": " + String(content[i].count) +  "</h4>";
+          popText += "<table class=\"table table-striped\"><tr><th>ip</th><th>count</th></tr>";
+          for (var j = 0; j<content[i].length; j++) {
+            popText += "<tr><td>" + content[i][j].ip + "</td><td>" + content[i][j].count + "</td></tr>";
+          }
+          popText += "</table>";
+          // ======= Add request to map ========
+          circle.bindPopup(popText).addTo(mymap);
           // ====================================
-          $("tbody").append("<tr><td>" + content[i].ip
-          + "</td><td>" + content[i].count + "</td><td>" + content[i].longitude +
-          "</td><td>" + content[i].latitude + "</td><td>" +
-          content[i].city + "</td><td>" + content[i].country + "</td></tr>");
-      };
-
-      $("tbody").append("<tr><td>" + content[i].ip
-      + "</td><td>" + content[content.length - 1].count + "</td><td>" + content[content.length - 1].longitude +
-      "</td><td>" + content[content.length - 1].latitude + "</td><td>" +
-      content[content.length - 1].city + "</td><td>" + content[content.length - 1].country + "</td></tr> </tbody></table>");
-
-      $("table").addClass("table-responsive table-bordered");
+      }
   }
 }
 });
