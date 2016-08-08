@@ -99,11 +99,15 @@ port.onMessage.addListener(function(msg) {
 
 // ======= Button Events =======
 
-$(".ip-link").click(function() {
-  console.log("HEEEJ!");
-  var ip = $(this).attr("id");
-  var url = "http://whois.arin.net/rest/ip" + ip;
-  chrome.tabs.create({url: url});
+mymap.on('popupopen', function() {
+  $(".ip-link").click(function() {
+    console.log("HEEEJ!");
+    var ip = $(this).attr("id");
+    var url = "https://apps.db.ripe.net/search/query.html?searchtext="
+    url += ip;
+    url += "&bflag=true&source=GRS#resultsAnchor#resultsAnchor";
+    chrome.tabs.create({url: url});
+  });
 });
 
 $(".deleteBtn").click(function() {
