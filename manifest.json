@@ -1,12 +1,14 @@
 
 {
-   "name": "GeoEntropy Chrome Plugin",
+   "name": "RequestWatcher",
 
    "browser_action": {
-     "default_title": "GeoEntropy",
-     "default_popup": "popup.html"
+     "default_title": "RequestWatcher",
+     "default_popup": "popup.html",
+     "default_icon": {
+       "16": "icon16.png"
+     }
    },
-
    "version": "1.0",
    "manifest_version": 2,
    "background": {

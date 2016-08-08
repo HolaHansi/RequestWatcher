@@ -81,6 +81,7 @@ port.onMessage.addListener(function(msg) {
             color: 'red'
           })
           var loc = (content[i][0].city ? String(content[i][0].city) : String(content[i][0].country));
+          loc = (loc ? loc : "unknown");
 
           var popText = "<h4>"+ loc + ": " + String(content[i].count) +  "</h4>";
           popText += "<table class=\"table table-striped\"><tr><th>ip</th><th>count</th></tr>";
