@@ -17,8 +17,6 @@ var deleteHistory = function() {
 // helper function for updateGeo
 var getGeo = function(req){
   var url = "http://freegeoip.net/json/" + req.ip;
-  // must finish request before moving on
-  // $.ajaxSetup({async: false});
   $.ajax({
     url: url,
     success: function(data) {
@@ -77,8 +75,6 @@ var updateHistory = function(details) {
         getGeo(req);
         // push it to history
         requestHistory.push(req);
-        // post updated history
-        port.postMessage({type: "history", history: requestHistory});
       }
   }
   console.log(requestHistory);
