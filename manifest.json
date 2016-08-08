@@ -1,0 +1,23 @@
+
+{
+   "name": "GeoEntropy Chrome Plugin",
+
+   "browser_action": {
+     "default_title": "GeoEntropy",
+     "default_popup": "popup.html"
+   },
+
+   "version": "1.0",
+   "manifest_version": 2,
+   "background": {
+       "scripts": ["logip.js", "jquery.min.js"]
+   },
+
+   "permissions": [
+       "webRequest",
+       "webRequestBlocking",
+       "<all_urls>",
+       "tabs",
+       "proxy"
+   ]
+}
