@@ -77,6 +77,8 @@ var updateHistory = function(details) {
         getGeo(req);
         // push it to history
         requestHistory.push(req);
+        // post updated history
+        port.postMessage({type: "history", history: requestHistory});
       }
   }
   console.log(requestHistory);

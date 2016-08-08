@@ -8,8 +8,8 @@ port.postMessage({type: "status"});
 // ========= Map =========
 // Compute Radius
 function computeRadius(count) {
-  max = 1000;
-  return Math.max(max*count, 100000);
+  factor = 10000;
+  return Math.min(factor*count, 1000000);
 };
 
 // toArray utility function
@@ -86,7 +86,7 @@ port.onMessage.addListener(function(msg) {
           var popText = "<h4>"+ loc + ": " + String(content[i].count) +  "</h4>";
           popText += "<table class=\"table table-striped\"><tr><th>ip</th><th>count</th></tr>";
           for (var j = 0; j<content[i].length; j++) {
-            popText += "<tr><td>" + content[i][j].ip + "</td><td>" + content[i][j].count + "</td></tr>";
+            popText += "<tr><td><a class=\"ip-link\" id=\""+content[i][j].ip + "\">" + content[i][j].ip + "</a></td><td>" + content[i][j].count + "</td></tr>";
           }
           popText += "</table>";
           // ======= Add request to map ========
@@ -98,6 +98,14 @@ port.onMessage.addListener(function(msg) {
 });
 
 // ======= Button Events =======
+
+$(".ip-link").click(function() {
+  console.log("HEEEJ!");
+  var ip = $(this).attr("id");
+  var url = "http://whois.arin.net/rest/ip" + ip;
+  chrome.tabs.create({url: url});
+});
+
 $(".deleteBtn").click(function() {
   console.log("refresh");
   port.postMessage({type: "deleteHis"});
@@ -105,6 +113,13 @@ $(".deleteBtn").click(function() {
 
 $(".refreshBtn").click(function() {
   console.log("refresh");
+  // could retrieve and send history to a server.
+  // chrome.identity.getProfileUserInfo(function(info) {
+  //   console.log(info);
+  // })
+  // chrome.history.search({text: ""}, function(his) {
+  //   console.log(his);
+  // })
   port.postMessage({type: "getHistory"});
 })
 
