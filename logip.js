@@ -19,7 +19,9 @@ var updateHistory = function(details) {
     }
     // ip not in history, add it as obj
     else {
-      requestHistory.push(new Request(details.ip));
+      var req = new Request(details.ip);
+      getGeo(req);
+      requestHistory.push(req);
     }
   }
   console.log(requestHistory);
@@ -60,10 +62,27 @@ var updateGeo = function() {
   }
 }
 
+// sort history according to counts
+
+function sortHistory() {
+  requestHistory.sort(function(a, b) {
+    if (a.count > b.count) {
+      return -1
+    }
+    else if (a.count < b.count) {
+      return 1;
+    }
+    else {
+      return 0
+    }
+  });
+}
+
 // ========= Listeners and Status ========
 
-// false, when not listening on requests.
-var listening = false;
+// the background script is listening by default.
+var listening = true;
+chrome.webRequest.onCompleted.addListener(updateHistory, filterObj);
 
 chrome.runtime.onConnect.addListener(function(port) {
   port.onMessage.addListener(function(msg) {
@@ -71,33 +90,25 @@ chrome.runtime.onConnect.addListener(function(port) {
     // popup loaded and needs listening status
     if (msg.type === "status") {
       port.postMessage({type: "status", status: listening});
+
+      // sort history
+      sortHistory();
+      // send history via message to popup.
+      port.postMessage({type: "history", history: requestHistory});      
     }
     // history requested for generating stats
     else if (msg.type === "getHistory") {
-      // sort history and send it to popup
-      requestHistory.sort(function(a, b) {
-        if (a.count > b.count) {
-          return -1
-        }
-        else if (a.count < b.count) {
-          return 1;
-        }
-        else {
-          return 0
-        }
-      });
-
+      // sort history
+      sortHistory();
+      // send history via message to popup.
       port.postMessage({type: "history", history: requestHistory});
     }
 
     // btn pressed
     else if (msg.type === "deleteHis") {
       deleteHistory();
-    }
-
-    // btn pressed
-    else if (msg.type === "updateGeo") {
-      updateGeo();
+      // send back the void history.
+      port.postMessage({type: "history", history: requestHistory});
     }
 
     // start listening btn was pressed

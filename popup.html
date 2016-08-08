@@ -1,23 +1,27 @@
 <html>
 <head>
   <link rel="stylesheet" href="bootstrap.css" />
-  <script src="jquery.min.js"></script>
-   <link ref="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="font-awesome.min.css" />
+  <link rel="stylesheet" href="leaflet.css" />
+  <link ref="stylesheet" href="style.css" />
 </head>
 
-<body style="width: 600px">
+<body style="width: 700px; height: 700px">
 
 <button type="button" class="btn btn-default listenBtn">Start Listening</button>
 
 <button type="button" class="btn btn-default deleteHis">Delete History</button>
 
-<button type="button" class="btn btn-default updateGeo">Update Geo</button>
+<button type="button" class="btn btn-default showStats">Refresh</button>
 
-<button type="button" class="btn btn-default showStats">Show Stats</button>
+<div id="map" style="width:700px;height:500px; margin: auto;"></div>
 
- <div id="tablePlace"></div>
+
+ <div id="tablePlace" style="width: 700px"></div>
 
 </div>
+<script src="jquery.min.js"></script>
+<script src="leaflet.js"></script>
 <script src="popup.js"></script>
 </body>
 </html>
