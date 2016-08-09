@@ -97,13 +97,11 @@ port.onMessage.addListener(function(msg) {
   }
 }
 });
-
-// styling of popup
-
-// mymap.on('popupopen', function() {
-//   $(".leaflet-popup-content-wrapper").css("max-height", "250px");
-//   $(".leaflet-popup-content-wrapper").css("overflow", "scroll");
-// });
+// popup style
+mymap.on('popupopen', function() {
+  $(".table").css("margin-bottom", "0px");
+  $(".leaflet-popup-content").css("margin", "8px 8px 8px 8px");
+})
 
 
 // ======= Button Events =======
