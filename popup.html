@@ -24,6 +24,9 @@
     margin-bottom: 5px;
     margin-left: 5px;
     margin-right: 5px;
+    width:700px;
+    height:500px;
+    margin: auto;
   }
 
   </style>
@@ -32,19 +35,23 @@
 
   <button type="button" class="btn btn-default deleteBtn">Delete History</button>
 
-  <button type="button" class="btn btn-default refreshBtn">Refresh</button>
+  <button type="button" class="btn btn-default refreshBtn">Refresh Tab</button>
 
-  <button type="button" class="btn btn-default statsBtn">Show Stats</button>
+  <button type="button" class="btn btn-default statsBtn">Show Chart</button>
 </div>
 
-<div id="map" style="width:700px;height:500px; margin: auto;"></div>
+<div id="map"></div>
 
+<div id="chart" style="display: none">
+
+</div>
 
  <div id="tablePlace" style="width: 700px"></div>
 
 </div>
 <script src="libraries/jquery.min.js"></script>
 <script src="libraries/leaflet.js"></script>
+<script src="libraries/plotly-latest.min.js"></script>
 <script src="popup.js"></script>
 </body>
 </html>
