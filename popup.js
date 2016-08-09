@@ -83,25 +83,33 @@ port.onMessage.addListener(function(msg) {
           var loc = (content[i][0].city ? String(content[i][0].city) : String(content[i][0].country));
           loc = (loc ? loc : "unknown");
 
-          var popText = "<h4>"+ loc + ": " + String(content[i].count) +  "</h4>";
-          popText += "<table class=\"table table-striped\"><tr><th>ip</th><th>count</th></tr>";
+          var popText = "<div class=\"custom-pop\"> <h4>"+ loc +  "</h4>";
+          popText += "<table class=\"table table-striped\"><tr><th>IP</th><th>Count</th></tr>";
           for (var j = 0; j<content[i].length; j++) {
             popText += "<tr><td><a class=\"ip-link\" id=\""+content[i][j].ip + "\">" + content[i][j].ip + "</a></td><td>" + content[i][j].count + "</td></tr>";
           }
-          popText += "</table>";
+          popText += "<tr><td><b>Total</b></td><td>" + String(content[i].count) + "</td></tr>";
+          popText += "</table></div>";
           // ======= Add request to map ========
-          circle.bindPopup(popText).addTo(mymap);
+          circle.bindPopup(popText, {"maxHeight": 250, "className": "custom-pop"}).addTo(mymap);
           // ====================================
       }
   }
 }
 });
 
+// styling of popup
+
+// mymap.on('popupopen', function() {
+//   $(".leaflet-popup-content-wrapper").css("max-height", "250px");
+//   $(".leaflet-popup-content-wrapper").css("overflow", "scroll");
+// });
+
+
 // ======= Button Events =======
 
 mymap.on('popupopen', function() {
   $(".ip-link").click(function() {
-    console.log("HEEEJ!");
     var ip = $(this).attr("id");
     var url = "https://apps.db.ripe.net/search/query.html?searchtext="
     url += ip;
@@ -109,6 +117,20 @@ mymap.on('popupopen', function() {
     chrome.tabs.create({url: url});
   });
 });
+
+$(".statsBtn").click(function() {
+  if ($("#map").css("display") == "none") {
+    $("#map").css("display", "block");
+    $(this).html("Show Stats");
+
+  } else {
+    $("#map").css("display", "none");
+    $(this).html("Show Map");
+    // now generate stats
+
+
+  }
+})
 
 $(".deleteBtn").click(function() {
   console.log("refresh");
