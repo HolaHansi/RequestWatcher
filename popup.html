@@ -3,33 +3,44 @@
   <link rel="stylesheet" href="libraries/bootstrap.css" />
   <link rel="stylesheet" href="libraries/font-awesome.min.css" />
   <link rel="stylesheet" href="libraries/leaflet.css" />
-  <link ref="stylesheet" href="style.css" />
 </head>
+<style>
+#btns {
+  margin-bottom: 5px;
+  margin-left: 5px;
+  margin-top: 5px;
+  margin-right: 5px;
+}
 
-<body style="width: 700px;">
-  <style>
-  #btns {
-    margin-bottom: 5px;
-    margin-left: 5px;
-    margin-top: 5px;
-    margin-right: 5px;
-  }
+.statsBtn {
+  right: 5px;
+  position: absolute;
+}
 
-  .statsBtn {
-    right: 5px;
-    position: absolute;
-  }
+#map {
+  margin-bottom: 5px;
+  margin-left: 5px;
+  margin-right: 5px;
+  width:700px;
+  height:500px;
+  margin: auto;
+}
 
-  #map {
-    margin-bottom: 5px;
-    margin-left: 5px;
-    margin-right: 5px;
-    width:700px;
-    height:500px;
-    margin: auto;
-  }
+body {
+  width: 700px;
+}
+.statsBtn {
+  right: 5px;
+  position: absolute;
+}
 
-  </style>
+a {
+  cursor: pointer;
+}
+</style>
+
+<body>
+
 <div id="btns">
   <button type="button" class="btn btn-default listenBtn">Start Listening</button>
 

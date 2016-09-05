@@ -4,8 +4,7 @@ var port = chrome.extension.connect({name: "startListening"});
 // get status on listening...
 port.postMessage({type: "status"});
 
-// GLOBAL var for CHART
-// the previous total count.
+// oldContent is used to compare with whatever is sent from background
 var oldContentMap;
 var oldContentChart;
 
@@ -22,10 +21,8 @@ function startRefreshing() {
 function stopRefreshing() {
   clearInterval(intervalID);
 }
-// start refreshing
-startRefreshing();
 
-// ========= Map =========
+// ========= Map functions =========
 // Compute Radius
 function computeRadius(count) {
   // this factor is definitely not carved in stone...
@@ -97,13 +94,9 @@ function groupByNet(list) {
   });
   return groups;
 }
-
-
-
-
-
-
-
+// stuff to happen, when pop-up is opened..
+// start to periodically request history from background
+startRefreshing();
 // initiate map - focus on Europe
 var mymap = L.map('map').setView([51.505, -0.09], 2);
 // use free tiles
@@ -126,11 +119,11 @@ port.onMessage.addListener(function(msg) {
   }
   // receiving history array, process it.
   else if (msg.type === "history" && showingMap && oldContentMap != JSON.stringify(msg.history)) {
-    oldContent = JSON.stringify(msg.history);
+    oldContentMap = JSON.stringify(msg.history);
     var content = groupByLocation(msg.history);
     // Remove old circles and table
     mymap.eachLayer(function (layer) {
-      // don't remove the tiles
+      // but don't remove the tiles
       if (layer._url != "http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png") {
         mymap.removeLayer(layer);
       }
@@ -140,7 +133,7 @@ port.onMessage.addListener(function(msg) {
       // add table
       for (var i=0; i<content.length - 1; i++) {
           var circle = L.circle([content[i][0].latitude, content[i][0].longitude], computeRadius(content[i].count), {
-            color: 'red'
+            color: 'blue'
           })
           // get location header
           var loc = (content[i][0].city ? String(content[i][0].city) : String(content[i][0].country));
@@ -155,7 +148,8 @@ port.onMessage.addListener(function(msg) {
           popText += "<tr><td><b>Total</b></td><td>" + String(content[i].count) + "</td></tr>";
           popText += "</table></div>";
           // ======= Add request to map ========
-          circle.bindPopup(popText, {"maxHeight": 250, "className": "custom-pop"}).addTo(mymap);
+          var doneCircle = circle.bindPopup(popText, {"maxHeight": 250, "className": "custom-pop"});
+          doneCircle.addTo(mymap);
           // ====================================
       }
     }
@@ -190,9 +184,10 @@ port.onMessage.addListener(function(msg) {
       labels: _labels,
       type: 'pie'
     }];
+
     var layout = {
       height: 500,
-      width: 700
+      width: 700,
     };
     var chart = document.getElementById('chart');
     Plotly.newPlot(chart, data, layout);

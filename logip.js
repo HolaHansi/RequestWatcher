@@ -95,8 +95,7 @@ var sortHistory = function() {
 // =========  Listener Arguments =========
 var updateHistory = function(details) {
   // if request has IP and is not a request made to freegeoip - log it!
-  if (details.ip && (details.url.indexOf("freegeoip.net/") == -1)) {
-
+  if (details.ip && (details.url.indexOf("freegeoip.net/") == -1) && (details.url.indexOf("rest.db.ripe.net") == -1)) {
       var index = requestHistory.findIndex(function(value) {
         return value.ip === details.ip;
       });
