@@ -1,12 +1,25 @@
 // ======== Request datastructures =====
+
+var numberOfRequests = 1;
+var numberSession = 1;
+
+// gets and returns domain.tld from str
+function getDomainStem(str) {
+  var stem = /\w+\.\w+\//.exec(str)[0];
+  stem = stem.slice(0, -1);
+  return stem;
+}
+
 // request prototype
-function Request(ip) {
-  this.ip = ip;
+function Request(details) {
+  this.ip = details.ip;
+  this.tab = details.tabId
+  this.numberRequest = numberOfRequests++;
+  this.domain = (details.url ? getDomainStem(details.url) : "NoDomain");
   this.count = 1;
 }
 // array holding request objects
 var requestHistory = [];
-
 
 // ====== Utility functions ===========
 function getObjects(obj, key, val) {
@@ -81,21 +94,34 @@ var getWhois = function(req) {
 var sortHistory = function() {
   requestHistory.sort(function(a, b) {
     if (a.count > b.count) {
-      return -1
+      return -1;
     }
     else if (a.count < b.count) {
       return 1;
     }
     else {
-      return 0
+      return 0;
     }
   });
+}
+// don't log requests that are made by the plug-in itself.
+var requestExternal = function(details) {
+  var isExternal = // lookup to get geo coordinates
+                  (details.url.indexOf("freegeoip.net/") == -1) &&
+                   // lookup to ripe for handler info
+                   (details.url.indexOf("rest.db.ripe.net") == -1) &&
+                   // tiles for map
+                   (details.url.indexOf("tiles.wmflabs.org") == -1);
+  return isExternal;
 }
 
 // =========  Listener Arguments =========
 var updateHistory = function(details) {
   // if request has IP and is not a request made to freegeoip - log it!
-  if (details.ip && (details.url.indexOf("freegeoip.net/") == -1) && (details.url.indexOf("rest.db.ripe.net") == -1)) {
+  if (details.ip && requestExternal(details)) {
+    // TODO : delete after use
+    console.log(details);
+      // find index in request history, where IP is the same
       var index = requestHistory.findIndex(function(value) {
         return value.ip === details.ip;
       });
@@ -105,7 +131,7 @@ var updateHistory = function(details) {
       }
       // ip not in history, add it as obj
       else {
-        var req = new Request(details.ip);
+        var req = new Request(details);
         // async request to obtain geo info
         getGeo(req);
         // async request to obtain whois
@@ -132,13 +158,14 @@ chrome.runtime.onConnect.addListener(function(port) {
       // sort history
       sortHistory();
       // send history via message to popup.
+      console.log(requestHistory);
+
       port.postMessage({type: "history", history: requestHistory});
     }
     // history requested for generating stats
     else if (msg.type === "getHistory") {
       // sort history
       sortHistory();
-      console.log(requestHistory);
       // send history via message to popup.
       port.postMessage({type: "history", history: requestHistory});
     }
