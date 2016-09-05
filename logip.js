@@ -119,8 +119,6 @@ var requestExternal = function(details) {
 var updateHistory = function(details) {
   // if request has IP and is not a request made to freegeoip - log it!
   if (details.ip && requestExternal(details)) {
-    // TODO : delete after use
-    console.log(details);
       // find index in request history, where IP is the same
       var index = requestHistory.findIndex(function(value) {
         return value.ip === details.ip;
@@ -158,8 +156,6 @@ chrome.runtime.onConnect.addListener(function(port) {
       // sort history
       sortHistory();
       // send history via message to popup.
-      console.log(requestHistory);
-
       port.postMessage({type: "history", history: requestHistory});
     }
     // history requested for generating stats
